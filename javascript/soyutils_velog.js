@@ -32,7 +32,6 @@ const {Message} = goog.require('jspb');
 const {assert} = goog.require('goog.asserts');
 const {startsWith} = goog.require('goog.string');
 
-
 /** @final */
 class ElementMetadata {
   /**
@@ -310,7 +309,7 @@ function replaceFunctionAttributes(element, logger) {
   let elementWithAttribute = element;
   if (element.tagName === 'VEATTR') {
     // The attribute being replaced belongs on the direct child.
-    elementWithAttribute = element.firstElementChild;
+    elementWithAttribute = /** @type {!Element} */ (element.firstElementChild);
   }
   for (let i = element.attributes.length - 1; i >= 0; --i) {
     const attributeName = element.attributes[i].name;
@@ -318,6 +317,11 @@ function replaceFunctionAttributes(element, logger) {
       // Delay evaluation of the attributes until we reach the element itself.
       if (elementWithAttribute.hasAttribute(ELEMENT_ATTR) &&
           element.tagName === 'VEATTR') {
+        // MOE:begin_strip
+        safeElement.setPrefixedAttribute(
+            SAFE_ATTR_PREFIXES, elementWithAttribute, attributeName,
+            element.attributes[i].value);
+        // MOE:end_strip
         elementWithAttribute.setAttribute(
             attributeName, element.attributes[i].value);
         continue;
@@ -334,6 +338,11 @@ function replaceFunctionAttributes(element, logger) {
     }
   }
   for (const attributeName in attributeMap) {
+    // MOE:begin_strip
+    safeElement.setPrefixedAttribute(
+        SAFE_ATTR_PREFIXES, elementWithAttribute, attributeName,
+        attributeMap[attributeName]);
+    // MOE:end_strip
     elementWithAttribute.setAttribute(
         attributeName, attributeMap[attributeName]);
   }
